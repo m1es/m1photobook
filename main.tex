@@ -1,0 +1,100 @@
+\documentclass{article}
+
+% ==================================================
+% Page geometry — perfectly symmetric
+% ==================================================
+\usepackage[
+  paperwidth=21cm,
+  paperheight=21cm,
+  margin=1.8cm
+]{geometry}
+
+% ==================================================
+% Core packages
+% ==================================================
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{pgffor}
+\usepackage{fancyhdr}
+
+\pagestyle{empty}
+
+% FIX: prevent blank first page
+\setlength{\topskip}{0pt}
+
+% ==================================================
+% Grid configuration
+% ==================================================
+
+% Gutter between images
+\newlength{\GridGutter}
+\setlength{\GridGutter}{4mm} % adjust freely (e.g. 3mm–5mm)
+
+% Image size (exact math: 3 images + 2 gutters = textwidth)
+\newlength{\GridSize}
+\setlength{\GridSize}{%
+  \dimexpr(\textheight - 2\GridGutter) / 3\relax
+}
+
+% Remove all implicit table spacing
+\setlength{\tabcolsep}{0pt}
+\renewcommand{\arraystretch}{1}
+\setlength{\extrarowheight}{0pt}
+
+% ==================================================
+% Image counter & filename logic
+% ==================================================
+\newcounter{img}
+
+% Zero-padded filename: 001, 002, ..., 120
+\newcommand{\ImageFile}{%
+  \ifnum\value{img}<10 00\else
+    \ifnum\value{img}<100 0\fi
+  \fi
+  \theimg
+}
+
+% Image inclusion macro
+\newcommand{\GridImage}{%
+  \stepcounter{img}%
+  \includegraphics[
+    width=\GridSize,
+    height=\GridSize
+  ]{images/\ImageFile.jpg}%
+}
+
+% ==================================================
+\begin{document}
+
+% ==================================================
+% Pages
+% Adjust page count as needed
+% (each page consumes 9 images)
+% ==================================================
+\foreach \page in {1,...,68}{
+
+  \noindent
+  \begin{minipage}[t][\textheight][t]{\textwidth}
+    \begin{tabular}{
+      @{}
+      m{\GridSize}
+      @{\hspace{\GridGutter}}
+      m{\GridSize}
+      @{\hspace{\GridGutter}}
+      m{\GridSize}
+      @{}
+    }
+      \GridImage & \GridImage & \GridImage \\
+      \noalign{\vskip\GridGutter}
+      \GridImage & \GridImage & \GridImage \\
+      \noalign{\vskip\GridGutter}
+      \GridImage & \GridImage & \GridImage
+    \end{tabular}
+  \end{minipage}
+
+  \newpage
+
+}
+
+\end{document}
+
