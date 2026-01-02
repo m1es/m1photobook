@@ -45,7 +45,7 @@ It takes an input directory (images_raw) and creates an output directory (images
 ### Install instructions
 - Python >= 3.9
 - Download fonts (https://dejavu-fonts.github.io/Download.html)
-- optional: export PATH=$PATH:~/Homebrew/opt/python@3.14/libexec/bin`
+- optional: `export PATH=$PATH:~/Homebrew/opt/python@3.14/libexec/bin`
 
 ```
 python3 -m venv venv

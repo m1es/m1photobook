@@ -57,10 +57,15 @@
 % Image inclusion macro
 \newcommand{\GridImage}{%
   \stepcounter{img}%
-  \includegraphics[
-    width=\GridSize,
-    height=\GridSize
-  ]{images/\ImageFile.jpg}%
+  \IfFileExists{images/\ImageFile.jpg}{%
+    \includegraphics[
+      width=\GridSize,
+      height=\GridSize
+    ]{images/\ImageFile.jpg}%
+  }{%
+    % Missing image → empty placeholder of same size
+    \makebox[\GridSize][l]{\rule{0pt}{\GridSize}}
+  }%
 }
 
 % ==================================================
