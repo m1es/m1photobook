@@ -4,6 +4,7 @@ set -euo pipefail
 shopt -s nullglob
 
 DIR="."
+OUT_DIR="./renamed"
 DRY_RUN=false
 
 # Parse arguments
@@ -12,6 +13,10 @@ while [[ $# -gt 0 ]]; do
     --dry-run|-n)
       DRY_RUN=true
       shift
+      ;;
+    --out-dir)
+      OUT_DIR="$2"
+      shift 2
       ;;
     *)
       DIR="$1"
@@ -25,13 +30,14 @@ TMP_UNSORTABLE=$(mktemp)
 TMP_ORDERED=$(mktemp)
 
 echo "Scanning files in: $DIR"
+echo "Output directory: $OUT_DIR"
 echo
 
 scanned=0
 sortable=0
 unsortable=0
 
-# Scan files
+# Scan files (ignore dotfiles like .DS_Store)
 while IFS= read -r -d '' file; do
   ((scanned++))
   base=$(basename "$file")
@@ -51,7 +57,13 @@ while IFS= read -r -d '' file; do
   echo "[$scanned] Sortable: $base → $date"
   echo "$sortable_date|$file" >> "$TMP_SORTABLE"
 
-done < <(find "$DIR" -maxdepth 1 -type f -print0)
+done < <(
+  find "$DIR" \
+    -maxdepth 1 \
+    -type f \
+    ! -name '.*' \
+    -print0
+)
 
 echo
 echo "Scanned:     $scanned files"
@@ -71,7 +83,9 @@ cat "$TMP_UNSORTABLE" >> "$TMP_ORDERED"
 total=$(wc -l < "$TMP_ORDERED" | tr -d ' ')
 pad_width=${#total}
 
-echo "Renaming files"
+mkdir -p "$OUT_DIR"
+
+echo "Copying files to: $OUT_DIR"
 echo
 
 counter=1
@@ -83,10 +97,10 @@ while IFS= read -r file; do
   newname="${num}.${ext}"
 
   if $DRY_RUN; then
-    echo "[$counter/$total] DRY-RUN: $base → $newname"
+    echo "[$counter/$total] DRY-RUN: $base → $OUT_DIR/$newname"
   else
-    echo "[$counter/$total] Renaming: $base → $newname"
-    mv -n "$file" "$DIR/$newname"
+    echo "[$counter/$total] Copying: $base → $OUT_DIR/$newname"
+    cp -n "$file" "$OUT_DIR/$newname"
   fi
 
   ((counter++))
@@ -97,7 +111,8 @@ rm -f "$TMP_SORTABLE" "$TMP_SORTABLE.sorted" "$TMP_UNSORTABLE" "$TMP_ORDERED"
 
 echo
 if $DRY_RUN; then
-  echo "Dry-run complete. No files were renamed."
+  echo "Dry-run complete. No files were copied."
 else
-  echo "Done. Files renamed successfully."
+  echo "Done. Files copied successfully."
 fi
+
