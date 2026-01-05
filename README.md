@@ -73,6 +73,8 @@ This template requires an 'images' folder that it reads images from that are nam
 001.jpg, 002.jpg, etc. It will generate a PDF file with a 3x3 image grid on each page.
 The page size is 21x21 cm, ready for print! 
 
+Before running, make sure to change the page count on line 79 (the foreach loop).
+
 ### Install instructions
 
 brew install --cask mactex
